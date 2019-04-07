@@ -1,47 +1,43 @@
-FROM Ubuntu
+FROM ubuntu:trusty
 MAINTAINER 
 
-#
-# Create user and group for utorrent.
-#
-
-RUN groupadd -r -g 666 utorrent \
-    && useradd -r -u 666 -g 666 -d /utorrent -m utorrent
+RUN locale-gen en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
 
 #
-# Add utorrent init script.
+# Create user and group for utorrent
 #
-
-ADD utorrent.sh /utorrent.sh
-RUN chown utorrent: /utorrent.sh \
-    && chmod 755 /utorrent.sh
+RUN useradd -G users -m utorrent
 
 #
-# Install utorrent and all required dependencies.
+# Add utorrent dist
 #
-
-RUN apt-get -q update \
-    && apt-get install -qy curl libssl1.0.0 \
-    && curl -s http://download.ap.bittorrent.com/track/beta/endpoint/utserver/os/linux-x64-debian-7-0 | tar xzf - --strip-components 1 -C utorrent \
-    && chown -R utorrent: utorrent \
-    && apt-get -y remove curl \
-    && apt-get -y autoremove \
-    && apt-get -y clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /tmp/*
+ADD http://download.ap.bittorrent.com/track/beta/endpoint/utserver/os/linux-x64-ubuntu-13-04 /tmp/utserver.tar.gz
 
 #
-# Define container settings.
+# Add utorrent init script and config.
 #
+ADD utserver.sh /opt/utorrent/utserver.sh
+ADD utserver.conf /opt/utorrent/utserver.conf
 
-VOLUME ["/settings", "/media"]
-
+#
+# Unpack utorrent and change permissions
+#
+VOLUME ["/utorrent", "/data"]
 EXPOSE 8080 6881
+
+RUN tar vxzf /tmp/utserver.tar.gz --strip-components 1 -C /opt/utorrent && \
+    rm -f /tmp/utserver.tar.gz && \
+    chown -R utorrent:utorrent /utorrent && \
+    chmod 755 /opt/utorrent/utserver.sh
 
 #
 # Start utorrent.
 #
 
 WORKDIR /utorrent
+USER utorrent
 
-CMD ["/utorrent.sh"]
+CMD ["/opt/utorrent/utserver.sh"]
