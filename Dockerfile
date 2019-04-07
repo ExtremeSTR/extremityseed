@@ -1,4 +1,4 @@
-FROM ubuntu:trusty
+FROM ubuntu:latest
 MAINTAINER 
 
 RUN locale-gen en_US.UTF-8
