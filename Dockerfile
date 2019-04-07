@@ -1,5 +1,6 @@
-FROM ubuntu:latest
-MAINTAINER 
+# Docker container with utorrent
+FROM ubuntu:trusty
+MAINTAINER test
 
 RUN locale-gen en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
