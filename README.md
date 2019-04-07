@@ -15,7 +15,7 @@ docker run                  \
     -v <work dir>:/utorrent \
     -p 8080:8080            \
     -p 6881:6881            \
-    ekho/utorrent
+
 ```
 
 Open a browser and point your to [http://docker-host:8080/gui](http://docker-host:8080/gui)
